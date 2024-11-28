@@ -120,49 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 
-class GeneratorPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var pair = appState.current;
 
-    IconData icon;
-    if (appState.favorites.contains(pair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          BigCard(pair: pair),
-          SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  appState.toggleFavorite();
-                },
-                icon: Icon(icon),
-                label: Text('Like'),
-              ),
-              SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: Text('Next'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class StartingPage extends StatelessWidget{
   @override
@@ -185,10 +143,73 @@ class StoragePage extends StatelessWidget{
   }
 }
 
-class ChatbotPage extends StatelessWidget{
+class ChatbotPage extends StatefulWidget{
   @override
+  State<ChatbotPage> createState() => _ChatbotPageState();
+}
+
+class _ChatbotPageState extends State<ChatbotPage> {
+  
+  final myController = TextEditingController();
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    myController.dispose();
+    super.dispose();
+  }
+var chat_messages = [["hallo","request"], ["hallo zurück", "chatbot"]];
+ @override
   Widget build(BuildContext context){
-    return Text("Hier ist der Chatbot");
+    
+    return Scaffold(
+      body: 
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            //Chat Messages
+            for(var message in chat_messages)
+              Builder(
+                builder: (context) {
+                  if (message[1] == "request") //
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(message[0]),
+                      ],
+                    );
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(message[0]),
+                    ],
+                  );
+                },
+              ),            
+              
+            TextField(
+              controller: myController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Ask our bot something',
+              ),
+            ),
+            
+            FloatingActionButton(
+              // When the user presses the button, show an alert dialog containing
+              // the text that the user has entered into the text field.
+              onPressed: () {
+                chat_messages.add(([myController.text,"request"]));
+                setState(() {});
+              },
+              tooltip: 'Show me the value!',
+              child: const Icon(Icons.send_rounded),
+            ),
+          ],
+        ),
+        
+    );
   }
 }
 
