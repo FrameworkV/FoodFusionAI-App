@@ -200,10 +200,11 @@ var chat_messages = [["hallo","request"], ["hallo zurück", "chatbot"]];
               // When the user presses the button, show an alert dialog containing
               // the text that the user has entered into the text field.
               onPressed: () {
-                chat_messages.add(([myController.text,"request"]));
+                chat_messages.add([myController.text,"request"]);
+                chat_messages.add([getAnswer(myController.text), "chatbot"]);
                 setState(() {});
               },
-              tooltip: 'Show me the value!',
+              tooltip: 'Send the message!',
               child: const Icon(Icons.send_rounded),
             ),
           ],
@@ -213,6 +214,10 @@ var chat_messages = [["hallo","request"], ["hallo zurück", "chatbot"]];
   }
 }
 
+//funktions
+getAnswer(String request) {
+  return "here will be the answer to the message, created by the AI";
+}
 class BigCard extends StatelessWidget {
   const BigCard({
     super.key,
