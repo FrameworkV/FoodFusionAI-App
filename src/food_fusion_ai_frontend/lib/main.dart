@@ -137,9 +137,33 @@ class RecipePage extends StatelessWidget{
 }
 
 class StoragePage extends StatelessWidget{
+  var storage = ["Apple","Banana","peanuts","watermelon","Pasta"];
   @override
   Widget build(BuildContext context){
-    return Text("Hier kann man sein Lager ansehen");
+    return Scaffold(
+      appBar: AppBar(
+      centerTitle: true,
+      title: FittedBox(
+          fit: BoxFit.fitWidth, 
+          child: Text('Your storage')
+      ),
+      ),
+    body:
+FractionallySizedBox(
+  widthFactor: 1,
+  child: ListView(
+          children: [         
+            for(var item in storage)
+            FractionallySizedBox(
+              widthFactor: 1,
+              child: FittedBox(
+                fit: BoxFit.fitHeight,
+                child: Text(item)),
+            ),
+          ],
+        ),
+),
+    );
   }
 }
 
@@ -165,28 +189,34 @@ var chat_messages = [["hallo","request"], ["hallo zurück", "chatbot"]];
     return Scaffold(
       body: 
         Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             //Chat Messages
-            for(var message in chat_messages)
-              Builder(
-                builder: (context) {
-                  if (message[1] == "request") //
+            Expanded(
+              child: ListView(
+                      children: [
+              for(var message in chat_messages)
+                Builder(
+                  builder: (context) {
+                    if (message[1] == "request") //
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(message[0]),
+                        ],
+                      );
+              
                     return Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(message[0]),
                       ],
                     );
-
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(message[0]),
-                    ],
-                  );
-                },
-              ),            
+                  },
+                ),  
+                      ]
+              ),
+            ),          
               
             TextField(
               controller: myController,
@@ -201,7 +231,9 @@ var chat_messages = [["hallo","request"], ["hallo zurück", "chatbot"]];
               // the text that the user has entered into the text field.
               onPressed: () {
                 chat_messages.add([myController.text,"request"]);
+                myController.clear();
                 chat_messages.add([getAnswer(myController.text), "chatbot"]);
+                
                 setState(() {});
               },
               tooltip: 'Send the message!',
