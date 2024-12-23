@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(MyApp());
@@ -69,6 +72,8 @@ class _MyHomePageState extends State<MyHomePage> {
         break;
       case 3:
         page = ChatbotPage();
+      case 4:
+        page = TestAPI();
         break;        
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -97,6 +102,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   icon: Icon(Icons.adb),
                   label: Text('Chatbot'),
                 ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.terrain_sharp),
+                  label: Text('Chatbot'),
+                ),
               ],
               selectedIndex: selectedIndex,
               onDestinationSelected: (value) {
@@ -121,6 +130,49 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 
+class TestAPI extends StatefulWidget{
+  @override
+  State<TestAPI> createState() => _TestAPIState();
+}
+
+class _TestAPIState extends State<TestAPI> {
+
+  final url ="https://jsonplaceholder.typicode.com/posts";
+
+var _postsJson = [];
+  void FetchPosts() async {
+    try{ 
+      final response = await http.get(Uri.parse(url));
+      final jsonData = jsonDecode(response.body) as List;
+
+      setState(() {
+        _postsJson = jsonData;
+      });
+    } catch (err) {}
+  }
+
+  
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    FetchPosts();
+  }
+
+
+  @override
+  Widget build(BuildContext context){
+    return Scaffold(
+      body: ListView.builder(
+        itemCount: _postsJson.length,
+        itemBuilder: (context, indexmindex) {
+          final post = _postsJson[indexmindex];
+          return Text("Title: ${post["title"]}\n Body: ${post["body"]}\n\n");
+        }
+      )
+    );
+  }
+}
 
 class StartingPage extends StatelessWidget{
   @override
@@ -128,6 +180,8 @@ class StartingPage extends StatelessWidget{
     return Text("Das ist die Startseite");
   }
 }
+
+
 
 class RecipePage extends StatelessWidget{
   @override
