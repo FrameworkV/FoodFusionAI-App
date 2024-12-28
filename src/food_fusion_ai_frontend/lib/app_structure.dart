@@ -9,20 +9,22 @@ import 'pages/storage_page.dart';
 import 'pages/test_api.dart';
 
 class MyHomePage extends StatefulWidget {
+  final String username;
+  MyHomePage({required this.username});
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
-  
+
   @override
   Widget build(BuildContext context) {
 
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = StartingPage();
+        page = StartingPage(username: widget.username,);
         break;
       case 1:
         page = RecipePage();
