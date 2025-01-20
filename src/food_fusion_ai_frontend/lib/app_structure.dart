@@ -10,7 +10,8 @@ import 'pages/test_api.dart';
 
 class MyHomePage extends StatefulWidget {
   final String username;
-  MyHomePage({required this.username});
+  final String access_token;
+  MyHomePage({required this.username, required this.access_token});
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -24,7 +25,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = StartingPage(username: widget.username,);
+        page = StartingPage(username: widget.username, access_token:widget.access_token);
         break;
       case 1:
         page = RecipePage();

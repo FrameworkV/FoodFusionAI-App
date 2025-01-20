@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../app_structure.dart';
 import 'forgot_password_page.dart';
 import 'register_page.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 class LoginPage extends StatefulWidget{
 
   @override
@@ -73,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               FloatingActionButton(
                 onPressed: () {
-                checkpassword(userController.text,passwordController.text); 
+                login(userController.text,passwordController.text); 
                 
                 },
                 tooltip: 'Login',
@@ -89,19 +91,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   //utils
-
-  void checkpassword(String username, String password) {
-    if(username=="hans"){
-
-      if(password=="123"){
-        userController.text= "eingeloggt";
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => MyHomePage(username: username,)),
-        );
-      } else _login_failed(context);
-    } else _login_failed(context);
-  }
 
   Future<void> _login_failed(BuildContext context) {
     return showDialog<void>(
@@ -139,4 +128,53 @@ class _LoginPageState extends State<LoginPage> {
       },
     );
   }
+
+  Future<void> login(String username, String password) async {
+    // URL für den Login-Endpunkt
+    var url = Uri.parse('http://localhost:8000/users/login');
+
+    // Die Daten im x-www-form-urlencoded-Format
+    var data = {
+      'grant_type': 'password',
+      'username': username,
+      'password': password,
+      'scope': '',
+      'client_id': '',
+      'client_secret': ''
+    };
+
+    try {
+      // POST-Anfrage mit den Headern
+      var response = await http.post(
+        url,
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: data,
+      );
+
+      // Überprüfen des Statuscodes
+      if (response.statusCode == 200) {
+        // Die JSON-Antwort dekodieren
+        Map<String, dynamic> responseMap = jsonDecode(response.body);
+        // Den access_token extrahieren
+        String accessToken = responseMap['access_token'];
+        // Den access_token ausgeben
+        print('Access Token: $accessToken');
+        Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MyHomePage(username: username, access_token: '$accessToken')),
+        );
+      } else {
+        // Fehler bei der Anfrage
+        throw Exception('Fehler beim Login: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Fehlerbehandlung
+      _login_failed(context);
+      print('Fehler: $e');
+    }
+  }
+
 }

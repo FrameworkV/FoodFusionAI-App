@@ -15,7 +15,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
     myController.dispose();
     super.dispose();
   }
-var chat_messages = [["hallo","request"], ["hallo zurück", "chatbot"]];
+var chat_messages = [["hallo","request"], ["hallo zurück, das ist eine sehr lange nachricht llllllllllllllllllgfglfgfg gfgflgflgfglflgflfgfglflgl gflfglfglflgflgglfglg gflfglflgflglglfgl", "chatbot"]];
  @override
   Widget build(BuildContext context){
     
@@ -29,24 +29,12 @@ var chat_messages = [["hallo","request"], ["hallo zurück", "chatbot"]];
               child: ListView(
                       children: [
               for(var message in chat_messages)
-                Builder(
-                  builder: (context) {
-                    if (message[1] == "request") //
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(message[0]),
-                        ],
-                      );
-              
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(message[0]),
-                      ],
-                    );
-                  },
-                ),  
+                ChatMessage(
+                  message: message[0],
+                  isSentByMe: (message[1]=="request"),
+                )
+                
+                
                       ]
               ),
             ),          
@@ -82,4 +70,67 @@ var chat_messages = [["hallo","request"], ["hallo zurück", "chatbot"]];
 //funktions
 getAnswer(String request) {
   return "here will be the answer to the message, created by the AI";
+}
+
+
+//design
+
+class ChatMessage extends StatelessWidget {
+  final String message;
+  final bool isSentByMe;
+
+  ChatMessage({required this.message, required this.isSentByMe});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+      child: Row(
+        mainAxisAlignment:
+            isSentByMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        children: [
+          if (!isSentByMe) ...[
+            CircleAvatar(
+              radius: 15,
+              backgroundColor: Colors.blueAccent,
+              child: Icon(
+                Icons.adb,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(width: 10),
+          ],
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.5, // Maximalbreite auf 70% der Bildschirmbreite setzen
+            ),
+            decoration: BoxDecoration(
+              color: isSentByMe ? Colors.blueAccent : Colors.grey[300],
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Text(
+              message,
+              style: TextStyle(
+                color: isSentByMe ? Colors.white : Colors.black,
+              ),
+              softWrap: true, // Zeilenumbruch aktivieren
+              overflow: TextOverflow.visible, // Text wird umgebrochen, wenn nötig
+            ),
+          ),
+          if (isSentByMe) ...[
+            SizedBox(width: 10),
+            CircleAvatar(
+              radius: 15,
+              backgroundColor: Colors.blueAccent,
+              child: Text(
+                'You',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }
