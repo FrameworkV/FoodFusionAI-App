@@ -1,21 +1,28 @@
 import 'package:flutter/material.dart';
+import '../app_structure.dart';
 import 'login_page.dart';
-import 'reset_password_page.dart';
+import 'register_page.dart';
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 
 
 
-class ForgotPasswordPage extends StatefulWidget{
+class ResetPasswordPage extends StatefulWidget{
 
   @override
-  State<ForgotPasswordPage> createState() => _ForgotPasswordPage();
+  State<ResetPasswordPage> createState() => _ResetPasswordPage();
 }
 
-class _ForgotPasswordPage extends State<ForgotPasswordPage> {
+class _ResetPasswordPage extends State<ResetPasswordPage> {
 
   final emailController = TextEditingController();
+  final userController = TextEditingController();
+  final passwordController = TextEditingController();
+  final repeatPasswordController = TextEditingController();
+  bool _isObscure_password =true;
+  bool _isObscure_repeat_password =true;
   @override
   Widget build(BuildContext context){
     return Scaffold(
@@ -23,7 +30,7 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
         centerTitle: true,
         title: FittedBox(
           fit: BoxFit.fitWidth, 
-          child: Text('Reset your Password!')
+          child: Text('Register!')
         ),
       ),
       body: Column(
@@ -37,7 +44,48 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
                 labelText: 'E-mail',
               ),
             ),
-          
+          Padding(padding: EdgeInsets.all(5),),
+          TextField(
+            controller: userController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'User Name',
+              ),
+            ),
+          Padding(padding: EdgeInsets.all(5),),
+          TextField(
+            controller: passwordController,
+            obscureText: _isObscure_password,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Password',
+              // this button is used to toggle the password visibility
+              suffixIcon: IconButton(
+                  icon: Icon(
+                      _isObscure_password ? Icons.visibility : Icons.visibility_off),
+                  onPressed: () {
+                    setState(() {
+                      _isObscure_password = !_isObscure_password;
+                    });
+                  })),
+          ),
+                    Padding(padding: EdgeInsets.all(5),),
+          TextField(
+            controller: repeatPasswordController,
+            obscureText: _isObscure_repeat_password,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Repeat Password',
+              // this button is used to toggle the password visibility
+              suffixIcon: IconButton(
+                  icon: Icon(
+                      _isObscure_repeat_password ? Icons.visibility : Icons.visibility_off),
+                  onPressed: () {
+                    setState(() {
+                      _isObscure_repeat_password = !_isObscure_repeat_password;
+                    });
+                  })),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -47,14 +95,15 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
                   MaterialPageRoute(builder: (context) => LoginPage()),
                 );
               },
-              child: Text("I know my password!")
+              child: Text("Already registered?")
               ),
               FloatingActionButton(
                 onPressed: () {
-                forgot_password(context, emailController.text);
+                newUser(emailController.text,userController.text,passwordController.text,repeatPasswordController.text); 
+                
                 },
-                tooltip: 'Send E-mail to reset password',
-                child: const Icon(Icons.send),
+                tooltip: 'Register',
+                child: const Icon(Icons.login),
                 
               ),
             ],
@@ -67,7 +116,19 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
 
   //utils
 
-  
+  void newUser(String email, String username, String password, String repeat_password) {
+    if(password!=repeat_password){
+      _register_failed(context, 0);
+    } else{
+      if(email=="" || username=="" ||password ==""){
+        _register_failed(context, 3);
+      }else{
+        createUser(username, password, email);
+      }
+
+    }
+
+  }
 
   Future<void> _register_failed(BuildContext context, int error_code) {
     String error_message = "";
@@ -83,7 +144,7 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
       case 3:
         error_message = "Fill out every field";  
       default:
-        error_message = "Some error occured while sending E-mail.";
+        error_message = "Some error occured while registering.";
     }
     return showDialog<void>(
       context: context,
@@ -127,7 +188,7 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('E-mail successfully sent!'),
+          title: Text('Successfully registered!'),
           content: Text(
             server_response,
           ),
@@ -146,13 +207,15 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
       },
     );
   }
-  Future<void> forgot_password(BuildContext context, String email) async {
+  Future<void> createUser(String username, String password, String email) async {
     // Die URL der FastAPI-Anfrage
-    var url = Uri.parse('http://localhost:8000/users/forgot_password?email='+ email);
+    var url = Uri.parse('http://localhost:8000/users/create_user');
     
     // Die Daten, die an die API gesendet werden
     var data = {
-      
+      'username': username,
+      'password': password,
+      'email': email,
     };
 
     // Führe die POST-Anfrage aus
@@ -168,9 +231,10 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
 
       // Prüfen, ob die Anfrage erfolgreich war (Statuscode 200)
       if (response.statusCode == 200) {
+        print('User erfolgreich erstellt!');
         Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ResetPasswordPage()),
+                  MaterialPageRoute(builder: (context) => LoginPage()),
         );
         _register_succeded(context, response.body);
         // Hier kannst du die Antwort der API verarbeiten, wenn nötig
